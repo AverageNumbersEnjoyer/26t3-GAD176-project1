@@ -222,6 +222,7 @@ GameObject:
   - component: {fileID: 575229288}
   - component: {fileID: 575229287}
   - component: {fileID: 575229289}
+  - component: {fileID: 575229290}
   m_Layer: 0
   m_Name: EnemySpawner
   m_TagString: Untagged
@@ -245,7 +246,7 @@ MonoBehaviour:
   currEnemyCount: 0
   targetEnemyCount: 3
   spawnInterval: 1.5
-  spawnPattern: {fileID: 575229289}
+  spawnPattern: {fileID: 575229290}
   WaveCompleted:
     m_PersistentCalls:
       m_Calls: []
@@ -277,6 +278,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   areaSize: {x: 8, y: 4}
+--- !u!114 &575229290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575229286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5787bf6e8f901b4fb8216e568164e14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  columns: 3
+  rows: 2
+  spacing: {x: 2, y: 2}
 --- !u!1001 &3244387018572575828
 PrefabInstance:
   m_ObjectHideFlags: 0
