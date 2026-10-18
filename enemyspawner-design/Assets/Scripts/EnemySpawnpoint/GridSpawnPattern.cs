@@ -9,11 +9,13 @@ public class GridSpawnPattern : SpawnPattern
 
     public override Vector3 GetSpawnPosition(int spawnIndex)
     {
-        //converts spawnIndex into a grid coordinate
-        int column = spawnIndex % columns;
-        int row = spawnIndex / columns;
+        // converts spawnIndex into a grid coordinate
+        // ensure index is in range of the grid, if outside, repeat
+        int i = spawnIndex % (columns * rows);
+        int column = i % columns;
+        int row = i / columns;
 
-        //centre the grid around the pattern's position
+        // centre the grid around the pattern's position
         float x = (column - (columns - 1) / 2f) * spacing.x;
         float y = ((rows - 1) / 2f - row) * spacing.y;
 

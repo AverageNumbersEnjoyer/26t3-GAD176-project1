@@ -7,15 +7,15 @@ using UnityEngine.Rendering;
 public class EnemySpawner : MonoBehaviour
 {
     //[SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private EnemySpawnEntry[] enemyTypes;
+    //reference to EnemySelectionPattern class
+    [SerializeField] private EnemySelectionPattern enemySelectionPattern;
+    //[SerializeField] private Vector2 spawnAreaSize = new Vector2(8f, 4f);
+    [SerializeField] private SpawnPattern spawnPattern;
 
     [SerializeField] private int currEnemyCount = 0;
     [SerializeField, Min(1)] private int targetEnemyCount = 3;
     [SerializeField] private float spawnInterval = 1.5f;
-
-    //temporary
-    //[SerializeField] private Vector2 spawnAreaSize = new Vector2(8f, 4f);
-    [SerializeField] private SpawnPattern spawnPattern;
+       
 
     // hashset over list to easily avoid duplicates
     private readonly HashSet<Enemy> activeEnemies = new HashSet<Enemy>();
@@ -29,7 +29,7 @@ public class EnemySpawner : MonoBehaviour
         StartCoroutine(SpawnWave());
 
     }
-
+    /*
     // weight table to determine which enemy is spawned
     private GameObject SelectEnemyPrefab()
     {
@@ -70,17 +70,18 @@ public class EnemySpawner : MonoBehaviour
 
         return null;
     }
+    */
 
 
     private IEnumerator SpawnWave()
     {
 
-        GameObject selectedPrefab = SelectEnemyPrefab();
+        
 
-        //null check and throw error
-        if (selectedPrefab == null)
+        // null check and throw error
+        if (enemySelectionPattern == null)
         {
-            Debug.LogError("EnemySpawner: No enemy prefab assigned");
+            Debug.LogError("EnemySpawner: No selection pattern assigned");
             yield break;
         }
         if (spawnPattern == null)
@@ -93,10 +94,12 @@ public class EnemySpawner : MonoBehaviour
         currEnemyCount = 0;
         spawningFinished = false;
 
-        // spawn routine
+        // loop spawn routine
         while (currEnemyCount < targetEnemyCount)
         {
+            // 
             Vector3 spawnPosition = spawnPattern.GetSpawnPosition(currEnemyCount);
+            GameObject selectedPrefab = enemySelectionPattern.SelectEnemyPrefab(currEnemyCount);
 
             GameObject instance = Instantiate(
                 selectedPrefab,
@@ -122,6 +125,7 @@ public class EnemySpawner : MonoBehaviour
 
             if (currEnemyCount < targetEnemyCount)
             {
+                // ensures the system isn't overloaded incase a large quantity of enemies need to be spawned
                 yield return new WaitForSeconds(spawnInterval);
             }
         }
@@ -149,6 +153,7 @@ public class EnemySpawner : MonoBehaviour
     }
     */
 
+    // remove enemies from the hashset
     private void HandleEnemyRemoved(Enemy enemy)
     {
         enemy.Removed -= HandleEnemyRemoved;
@@ -159,11 +164,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void CheckWaveCompletion()
     {
+        // check if we're still spawning or if there's still enemies alive
         if (!spawningFinished || activeEnemies.Count > 0)
         {
             return;
         }
-
+        // if not signal the wave as complete
         Debug.Log("Wave Completed");
         WaveCompleted?.Invoke();
     }
