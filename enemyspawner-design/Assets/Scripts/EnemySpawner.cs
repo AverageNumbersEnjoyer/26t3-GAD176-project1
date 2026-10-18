@@ -6,7 +6,8 @@ using UnityEngine.Rendering;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject enemyPrefab;
+    //[SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private EnemySpawnEntry[] enemyTypes;
 
     [SerializeField] private int currEnemyCount = 0;
     [SerializeField, Min(1)] private int targetEnemyCount = 3;
@@ -29,10 +30,55 @@ public class EnemySpawner : MonoBehaviour
 
     }
 
+    // weight table to determine which enemy is spawned
+    private GameObject SelectEnemyPrefab()
+    {
+        float totalWeight = 0f;
+
+        foreach (EnemySpawnEntry entry in enemyTypes)
+        {
+            if (entry != null && entry.enemyPrefab != null)
+            {
+                totalWeight += Mathf.Max(0f, entry.spawnWeight);
+            }
+        }
+
+        // nothing spawns if nothing in table
+        if (totalWeight <= 0f)
+        {
+            return null;
+        }
+
+        float roll = Random.Range(0f, totalWeight);
+
+        foreach (EnemySpawnEntry entry in enemyTypes)
+        {
+            if (entry == null || entry.enemyPrefab == null)
+            {
+                continue;
+            }
+
+            float weight = Mathf.Max(0f, entry.spawnWeight);
+
+            if (roll < weight)
+            {
+                return entry.enemyPrefab;
+            }
+
+            roll -= weight;
+        }
+
+        return null;
+    }
+
+
     private IEnumerator SpawnWave()
     {
+
+        GameObject selectedPrefab = SelectEnemyPrefab();
+
         //null check and throw error
-        if (enemyPrefab == null)
+        if (selectedPrefab == null)
         {
             Debug.LogError("EnemySpawner: No enemy prefab assigned");
             yield break;
@@ -53,7 +99,7 @@ public class EnemySpawner : MonoBehaviour
             Vector3 spawnPosition = spawnPattern.GetSpawnPosition(currEnemyCount);
 
             GameObject instance = Instantiate(
-                enemyPrefab,
+                selectedPrefab,
                 spawnPosition,
                 Quaternion.identity
                 );
